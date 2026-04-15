@@ -135,17 +135,17 @@ body{font-family:Menlo,Consolas,Monaco,monospace;font-size:12px;background:#1e1e
 const EVENT_DEFS=[
   {name:'on_ready',cat:'playback',color:'#4ec9b0',payload:()=>({type:'ready'})},
   {name:'on_play',cat:'playback',color:'#4ec9b0',payload:()=>({type:'play',time:fmtTime()})},
-  {name:'on_playing',cat:'playback',color:'#4ec9b0',payload:()=>({type:'playing',position:+(state.position).toFixed(2)})},
-  {name:'on_paused',cat:'playback',color:'#4ec9b0',payload:()=>({type:'paused',position:+(state.position).toFixed(2)})},
-  {name:'on_seek',cat:'playback',color:'#4ec9b0',payload:()=>({type:'seek',from:+(state.position).toFixed(2),to:+(state.position+Math.random()*30-15).toFixed(2)})},
-  {name:'on_seeked',cat:'playback',color:'#4ec9b0',payload:()=>({type:'seeked',position:+(state.position).toFixed(2)})},
-  {name:'on_time_changed',cat:'playback',color:'#569cd6',payload:()=>({type:'timechanged',time:+(state.position).toFixed(3)})},
+  {name:'on_playing',cat:'playback',color:'#4ec9b0',payload:()=>({type:'playing',position:+(simState.position).toFixed(2)})},
+  {name:'on_paused',cat:'playback',color:'#4ec9b0',payload:()=>({type:'paused',position:+(simState.position).toFixed(2)})},
+  {name:'on_seek',cat:'playback',color:'#4ec9b0',payload:()=>({type:'seek',from:+(simState.position).toFixed(2),to:+(simState.position+Math.random()*30-15).toFixed(2)})},
+  {name:'on_seeked',cat:'playback',color:'#4ec9b0',payload:()=>({type:'seeked',position:+(simState.position).toFixed(2)})},
+  {name:'on_time_changed',cat:'playback',color:'#569cd6',payload:()=>({type:'timechanged',time:+(simState.position).toFixed(3)})},
   {name:'on_video_playback_quality_changed',cat:'quality',color:'#c586c0',payload:()=>({type:'qualitychange',previousBitrate:2400000+Math.floor(Math.random()*800000),targetBitrate:2400000+Math.floor(Math.random()*800000),currentBitrate:2400000+Math.floor(Math.random()*800000)})},
   {name:'on_audio_playback_quality_changed',cat:'quality',color:'#c586c0',payload:()=>({type:'audioquality',bitrate:128000,codec:'aac'})},
-  {name:'on_stall_started',cat:'buffer',color:'#f44747',payload:()=>({type:'stallstarted',position:+(state.position).toFixed(2)})},
+  {name:'on_stall_started',cat:'buffer',color:'#f44747',payload:()=>({type:'stallstarted',position:+(simState.position).toFixed(2)})},
   {name:'on_stall_ended',cat:'buffer',color:'#f44747',payload:()=>({type:'stallended',duration:+(0.4+Math.random()*2).toFixed(2)})},
   {name:'on_download_finished',cat:'buffer',color:'#569cd6',payload:()=>({type:'download',url:'https://cdn.example.com/seg'+Math.floor(Math.random()*200)+'.ts',size:Math.floor(150000+Math.random()*400000),duration:+(0.1+Math.random()*0.6).toFixed(3),mimeType:'video/mp2t'})},
-  {name:'on_segment_request_finished',cat:'buffer',color:'#569cd6',payload:()=>({type:'segment',mediaType:Math.random()>.5?'video':'audio',startTime:+(state.position).toFixed(2),duration:4.0,bitrate:2400000})},
+  {name:'on_segment_request_finished',cat:'buffer',color:'#569cd6',payload:()=>({type:'segment',mediaType:Math.random()>.5?'video':'audio',startTime:+(simState.position).toFixed(2),duration:4.0,bitrate:2400000})},
   {name:'on_error',cat:'error',color:'#f44747',payload:()=>({type:'error',code:1001+Math.floor(Math.random()*10),message:'A playback error occurred.',data:{url:'https://cdn.example.com/manifest.mpd'}})},
   {name:'on_warning',cat:'error',color:'#ce9178',payload:()=>({type:'warning',code:2001,message:'Falling back to lower bitrate.'})},
   {name:'on_ad_break_started',cat:'ad',color:'#dcdcaa',payload:()=>({type:'adbreakstart',adBreakId:'preroll_1',scheduledTime:0})},
@@ -156,7 +156,7 @@ const EVENT_DEFS=[
   {name:'on_subtitle_enable',cat:'ui',color:'#888888',payload:()=>({type:'subtitleenable',trackId:'en',language:'en',label:'English'})},
   {name:'on_fullscreen_enter',cat:'ui',color:'#888888',payload:()=>({type:'fullscreenenter'})},
   {name:'on_source_loaded',cat:'playback',color:'#4ec9b0',payload:()=>({type:'sourceloaded',src:'https://cdn.example.com/manifest.mpd',drmType:'widevine'})},
-  {name:'on_playback_finished',cat:'playback',color:'#4ec9b0',payload:()=>({type:'finished',duration:+(state.position).toFixed(2)})},
+  {name:'on_playback_finished',cat:'playback',color:'#4ec9b0',payload:()=>({type:'finished',duration:+(simState.position).toFixed(2)})},
 ];
 
 const WEIGHTED=[
