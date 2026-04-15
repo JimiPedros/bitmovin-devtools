@@ -6,7 +6,12 @@ A Chrome extension that adds a **Bitmovin** tab to Chrome DevTools — giving yo
 
 ---
 
-![Panel screenshot showing event list, payload tab and player state](https://placehold.co/900x400?text=screenshot)
+![DevTools for Bitmovin Player](./docs/devtools.png)
+
+
+## Live Demo
+
+Try the panel UI before installing: **[Live Demo →](https://jimipedros.github.io/bitmovin-devtools)**
 
 ---
 
