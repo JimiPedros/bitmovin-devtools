@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Bitmovin Event DevTools</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Menlo,Consolas,Monaco,monospace;font-size:12px;background:#1e1e1e;color:#d4d4d4}
+:root{
+  --bg1:#1e1e1e;--bg2:#252526;--bg3:#2d2d2d;--bg4:#3a3a3a;
+  --bd:#3c3c3c;--bd2:#555;
+  --tx:#d4d4d4;--tx2:#9e9e9e;--tx3:#666;
+  --accent:#569cd6;--green:#4ec9b0;--amber:#ce9178;--red:#f44747;--purple:#c586c0;
+  --radius:3px;
+}
+.shell{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.toolbar{display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--bg2);border-bottom:1px solid var(--bd);flex-shrink:0;flex-wrap:wrap}
+.logo{font-family:-apple-system,sans-serif;font-size:12px;font-weight:600;color:var(--tx);margin-right:4px;white-space:nowrap}
+.badge{font-size:10px;padding:2px 6px;border-radius:99px;font-family:-apple-system,sans-serif;background:#1a3a1a;color:#4ec9b0;white-space:nowrap}
+.badge-error{background:#3a1a1a;color:#f44747}
+.hidden{display:none!important}
+.btn{font-family:-apple-system,sans-serif;font-size:11px;padding:3px 8px;border:1px solid var(--bd2);border-radius:var(--radius);background:transparent;color:var(--tx2);cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--bg4);color:var(--tx)}
+.btn-danger{color:#f44747;border-color:#5a2a2a}
+.btn-danger:hover{background:#3a1a1a}
+.spacer{flex:1}
+.filter-input{font-family:Menlo,monospace;font-size:11px;padding:2px 6px;border:1px solid var(--bd2);border-radius:var(--radius);background:var(--bg1);color:var(--tx);width:130px;outline:none}
+.filter-input:focus{border-color:var(--accent)}
+.filter-select{font-family:-apple-system,sans-serif;font-size:11px;padding:2px 4px;border:1px solid var(--bd2);border-radius:var(--radius);background:var(--bg1);color:var(--tx);cursor:pointer}
+.main{display:flex;flex:1;overflow:hidden;min-height:0}
+.event-list-pane{width:300px;min-width:200px;border-right:1px solid var(--bd);overflow-y:auto;flex-shrink:0}
+.event-list-pane::-webkit-scrollbar{width:4px}
+.event-list-pane::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+.event-item{display:flex;align-items:center;gap:7px;padding:5px 8px;border-bottom:1px solid var(--bd);cursor:pointer;user-select:none}
+.event-item:hover{background:var(--bg3)}
+.event-item.selected{background:#1a3050}
+.event-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.event-name{flex:1;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.event-player-id{font-size:10px;color:var(--tx3);white-space:nowrap}
+.event-ts{font-size:10px;color:var(--tx3);white-space:nowrap}
+.event-seq{font-size:10px;color:var(--tx3);min-width:26px;text-align:right}
+.detail-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.detail-tabs{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--bg2)}
+.tab{font-family:-apple-system,sans-serif;font-size:11px;padding:5px 14px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--tx2);cursor:pointer}
+.tab:hover{color:var(--tx)}
+.tab.active{color:var(--tx);border-bottom-color:var(--accent)}
+.detail-body{flex:1;overflow:auto;padding:12px}
+.detail-body::-webkit-scrollbar{width:4px}
+.detail-body::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+.empty-state{color:var(--tx3);font-family:-apple-system,sans-serif;font-size:13px;display:flex;align-items:center;justify-content:center;height:100%}
+.json-tree{font-size:11px;line-height:1.9;white-space:pre-wrap;word-break:break-all}
+.json-key{color:var(--accent)}
+.json-str{color:var(--green)}
+.json-num{color:#b5cea8}
+.json-bool{color:var(--purple)}
+.json-null{color:var(--tx3)}
+.state-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.state-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--radius);padding:8px 10px}
+.state-label{font-size:10px;color:var(--tx3);font-family:-apple-system,sans-serif;margin-bottom:3px}
+.state-val{font-size:13px;font-family:Menlo,monospace;color:var(--tx)}
+.tl-row{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px}
+.tl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tl-name{flex:1;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-bar-wrap{width:100px;background:var(--bg3);border-radius:2px;height:5px;overflow:hidden}
+.tl-bar{height:5px;border-radius:2px}
+.tl-t{font-size:10px;color:var(--tx3);width:52px;text-align:right}
+.tl-current .tl-name{color:var(--tx);font-weight:bold}
+.diff-added{color:var(--green)}
+.diff-removed{color:var(--red)}
+.diff-key{color:var(--accent)}
+.diff-label{font-size:10px;color:var(--tx3);font-family:-apple-system,sans-serif;margin-bottom:6px}
+.footer{display:flex;align-items:center;gap:8px;padding:3px 10px;border-top:1px solid var(--bd);background:var(--bg2);flex-shrink:0;font-family:-apple-system,sans-serif;font-size:11px;color:var(--tx3)}
+.sep{color:var(--bd2)}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.pulse.recording{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="toolbar">
+    <span class="logo">&#9654; Bitmovin</span>
+    <span class="badge" id="rec-badge">&#9679; REC</span>
+    <span class="badge badge-error hidden" id="err-badge"></span>
+    <button id="btn-pause" class="btn">Pause</button>
+    <button id="btn-clear" class="btn btn-danger">Clear</button>
+    <div class="spacer"></div>
+    <input type="text" id="filter-text" class="filter-input" placeholder="event name..."/>
+    <select id="filter-cat" class="filter-select">
+      <option value="">all</option>
+      <option value="playback">playback</option>
+      <option value="buffer">buffer</option>
+      <option value="quality">quality</option>
+      <option value="ad">ad</option>
+      <option value="error">error</option>
+      <option value="drm">drm</option>
+      <option value="ui">ui</option>
+      <option value="metadata">metadata</option>
+    </select>
+    <button id="btn-export" class="btn">Export JSON</button>
+  </div>
+
+  <div class="main">
+    <div class="event-list-pane" id="event-list-pane">
+      <div id="event-list"></div>
+    </div>
+    <div class="detail-pane">
+      <div class="detail-tabs" id="detail-tabs">
+        <button class="tab active" data-tab="payload">Payload</button>
+        <button class="tab" data-tab="state">Player state</button>
+        <button class="tab" data-tab="timeline">Timeline</button>
+        <button class="tab" data-tab="diff">Diff</button>
+      </div>
+      <div class="detail-body" id="detail-body">
+        <div class="empty-state">&#8592; Select an event to inspect</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="pulse recording" id="pulse"></span>
+    <span id="footer-count">0 events</span>
+    <span class="sep">&#183;</span>
+    <span id="footer-session">0s</span>
+    <div class="spacer"></div>
+    <span id="footer-player">no player</span>
+    <span class="sep">&#183;</span>
+    <span id="footer-pos">pos &#8212;</span>
+    <span class="sep">&#183;</span>
+    <span id="footer-buf">buf &#8212;</span>
+  </div>
+</div>
+
+<script>
+const EVENT_DEFS=[
+  {name:'on_ready',cat:'playback',color:'#4ec9b0',payload:()=>({type:'ready'})},
+  {name:'on_play',cat:'playback',color:'#4ec9b0',payload:()=>({type:'play',time:fmtTime()})},
+  {name:'on_playing',cat:'playback',color:'#4ec9b0',payload:()=>({type:'playing',position:+(state.position).toFixed(2)})},
+  {name:'on_paused',cat:'playback',color:'#4ec9b0',payload:()=>({type:'paused',position:+(state.position).toFixed(2)})},
+  {name:'on_seek',cat:'playback',color:'#4ec9b0',payload:()=>({type:'seek',from:+(state.position).toFixed(2),to:+(state.position+Math.random()*30-15).toFixed(2)})},
+  {name:'on_seeked',cat:'playback',color:'#4ec9b0',payload:()=>({type:'seeked',position:+(state.position).toFixed(2)})},
+  {name:'on_time_changed',cat:'playback',color:'#569cd6',payload:()=>({type:'timechanged',time:+(state.position).toFixed(3)})},
+  {name:'on_video_playback_quality_changed',cat:'quality',color:'#c586c0',payload:()=>({type:'qualitychange',previousBitrate:2400000+Math.floor(Math.random()*800000),targetBitrate:2400000+Math.floor(Math.random()*800000),currentBitrate:2400000+Math.floor(Math.random()*800000)})},
+  {name:'on_audio_playback_quality_changed',cat:'quality',color:'#c586c0',payload:()=>({type:'audioquality',bitrate:128000,codec:'aac'})},
+  {name:'on_stall_started',cat:'buffer',color:'#f44747',payload:()=>({type:'stallstarted',position:+(state.position).toFixed(2)})},
+  {name:'on_stall_ended',cat:'buffer',color:'#f44747',payload:()=>({type:'stallended',duration:+(0.4+Math.random()*2).toFixed(2)})},
+  {name:'on_download_finished',cat:'buffer',color:'#569cd6',payload:()=>({type:'download',url:'https://cdn.example.com/seg'+Math.floor(Math.random()*200)+'.ts',size:Math.floor(150000+Math.random()*400000),duration:+(0.1+Math.random()*0.6).toFixed(3),mimeType:'video/mp2t'})},
+  {name:'on_segment_request_finished',cat:'buffer',color:'#569cd6',payload:()=>({type:'segment',mediaType:Math.random()>.5?'video':'audio',startTime:+(state.position).toFixed(2),duration:4.0,bitrate:2400000})},
+  {name:'on_error',cat:'error',color:'#f44747',payload:()=>({type:'error',code:1001+Math.floor(Math.random()*10),message:'A playback error occurred.',data:{url:'https://cdn.example.com/manifest.mpd'}})},
+  {name:'on_warning',cat:'error',color:'#ce9178',payload:()=>({type:'warning',code:2001,message:'Falling back to lower bitrate.'})},
+  {name:'on_ad_break_started',cat:'ad',color:'#dcdcaa',payload:()=>({type:'adbreakstart',adBreakId:'preroll_1',scheduledTime:0})},
+  {name:'on_ad_started',cat:'ad',color:'#dcdcaa',payload:()=>({type:'adstart',adId:'ad_'+Math.floor(Math.random()*1000),duration:15,skipOffset:5})},
+  {name:'on_ad_finished',cat:'ad',color:'#dcdcaa',payload:()=>({type:'adfinish',adId:'ad_'+Math.floor(Math.random()*1000),skipped:Math.random()>.7})},
+  {name:'on_ad_break_finished',cat:'ad',color:'#dcdcaa',payload:()=>({type:'adbreakend'})},
+  {name:'on_drm_license_added',cat:'drm',color:'#e06c75',payload:()=>({type:'licenseadded',drmSystem:'widevine',responseTime:+(200+Math.random()*400).toFixed(0)})},
+  {name:'on_subtitle_enable',cat:'ui',color:'#888888',payload:()=>({type:'subtitleenable',trackId:'en',language:'en',label:'English'})},
+  {name:'on_fullscreen_enter',cat:'ui',color:'#888888',payload:()=>({type:'fullscreenenter'})},
+  {name:'on_source_loaded',cat:'playback',color:'#4ec9b0',payload:()=>({type:'sourceloaded',src:'https://cdn.example.com/manifest.mpd',drmType:'widevine'})},
+  {name:'on_playback_finished',cat:'playback',color:'#4ec9b0',payload:()=>({type:'finished',duration:+(state.position).toFixed(2)})},
+];
+
+const WEIGHTED=[
+  ...Array(8).fill('on_time_changed'),
+  ...Array(5).fill('on_segment_request_finished'),
+  ...Array(4).fill('on_download_finished'),
+  ...Array(3).fill('on_playing'),
+  ...Array(2).fill('on_video_playback_quality_changed'),
+  'on_play','on_paused','on_seek','on_seeked',
+  'on_stall_started','on_stall_ended',
+  'on_ad_break_started','on_ad_started','on_ad_finished','on_ad_break_finished',
+  'on_error','on_warning','on_drm_license_added','on_subtitle_enable','on_fullscreen_enter',
+];
+
+let events=[],seq=0,paused=false,selectedId=null,activeTab='payload',sessionStart=Date.now();
+let simState={position:0,buffer:0,bitrate:2400000,playing:false,stalling:false};
+let autoScroll=true,errorCount=0;
+
+function fmtTime(){return new Date().toISOString().substr(11,12)}
+
+function categorise(name){
+  if(/^on_ad/.test(name))return'ad';
+  if(/error|warning/.test(name))return'error';
+  if(/drm/.test(name))return'drm';
+  if(/quality|adaptation/.test(name))return'quality';
+  if(/download|segment|buffer|stall/.test(name))return'buffer';
+  if(/subtitle|fullscreen|cast|volume|ui|viewmode/.test(name))return'ui';
+  if(/metadata|cue/.test(name))return'metadata';
+  return'playback';
+}
+
+function addEvent(defName){
+  if(paused)return;
+  const def=EVENT_DEFS.find(d=>d.name===defName);
+  if(!def)return;
+  const payload=def.payload();
+  const ev={
+    id:++seq,name:def.name,cat:def.cat,color:def.color,
+    ts:fmtTime(),tsMs:Date.now(),playerId:'player_1',data:payload,
+    playerState:{currentTime:+(simState.position).toFixed(3),bufferLength:+(simState.buffer).toFixed(1),bitrate:simState.bitrate,isPlaying:simState.playing,isStalling:simState.stalling}
+  };
+  events.push(ev);
+  if(def.cat==='error'){errorCount++;updateErrBadge()}
+  if(events.length>500)events.shift();
+  document.getElementById('footer-player').textContent='1 player';
+  document.getElementById('footer-pos').textContent='pos '+simState.position.toFixed(1)+'s';
+  document.getElementById('footer-buf').textContent='buf +'+simState.buffer.toFixed(1)+'s';
+  document.getElementById('footer-session').textContent=Math.round((Date.now()-sessionStart)/1000)+'s';
+  renderList();
+  if(autoScroll&&selectedId===null)scrollBottom();
+}
+
+function updateErrBadge(){
+  const b=document.getElementById('err-badge');
+  if(errorCount>0){b.classList.remove('hidden');b.textContent=errorCount+' error'+(errorCount>1?'s':'');}
+  else b.classList.add('hidden');
+}
+
+function renderList(){
+  const ft=document.getElementById('filter-text').value.toLowerCase();
+  const fc=document.getElementById('filter-cat').value;
+  const filtered=events.filter(e=>(!ft||e.name.includes(ft))&&(!fc||e.cat===fc));
+  const el=document.getElementById('event-list');
+  el.innerHTML=filtered.map(e=>`
+    <div class="event-item${selectedId===e.id?' selected':''}" data-id="${e.id}">
+      <span class="event-dot" style="background:${e.color}"></span>
+      <span class="event-name">${esc(e.name)}</span>
+      <span class="event-player-id">${esc(e.playerId)}</span>
+      <span class="event-ts">${e.ts?e.ts.substr(0,8):''}</span>
+      <span class="event-seq">#${e.id}</span>
+    </div>`).join('');
+  el.querySelectorAll('.event-item').forEach(row=>{
+    row.addEventListener('click',()=>{selectedId=parseInt(row.dataset.id,10);autoScroll=false;renderList();renderDetail();});
+  });
+  document.getElementById('footer-count').textContent=events.length+' events';
+}
+
+function scrollBottom(){
+  const p=document.getElementById('event-list-pane');
+  p.scrollTop=p.scrollHeight;
+}
+
+function renderDetail(){
+  const ev=events.find(e=>e.id===selectedId);
+  const body=document.getElementById('detail-body');
+  if(!ev){body.innerHTML='<div class="empty-state">&#8592; Select an event to inspect</div>';return;}
+  if(activeTab==='payload'){
+    body.innerHTML='<div class="json-tree">'+jsonHtml({event:ev.name,category:ev.cat,sequence:ev.id,playerId:ev.playerId,timestamp:ev.ts,data:ev.data})+'</div>';
+  }else if(activeTab==='state'){
+    const s=ev.playerState;
+    const cards=[['position',s.currentTime+'s'],['buffer ahead',s.bufferLength+'s'],['bitrate',Math.round(s.bitrate/1000)+' kbps'],['is playing',''+s.isPlaying],['is stalling',''+s.isStalling],['player',ev.playerId]];
+    body.innerHTML='<div class="state-grid">'+cards.map(([l,v])=>`<div class="state-card"><div class="state-label">${esc(l)}</div><div class="state-val">${esc(v)}</div></div>`).join('')+'</div>';
+  }else if(activeTab==='timeline'){
+    const idx=events.findIndex(e=>e.id===ev.id);
+    const slice=events.slice(Math.max(0,idx-15),idx+3);
+    const t0=slice[0]?.tsMs||ev.tsMs;
+    const tMax=(slice[slice.length-1]?.tsMs||ev.tsMs)-t0||1;
+    body.innerHTML=slice.map(e=>{
+      const rel=e.tsMs-t0;
+      const pct=Math.max(3,Math.round((rel/tMax)*100));
+      const cur=e.id===ev.id;
+      return`<div class="tl-row${cur?' tl-current':''}"><span class="tl-dot" style="background:${e.color}"></span><span class="tl-name">${esc(e.name)}</span><div class="tl-bar-wrap"><div class="tl-bar" style="width:${pct}%;background:${e.color}"></div></div><span class="tl-t">+${rel}ms</span></div>`;
+    }).join('');
+  }else if(activeTab==='diff'){
+    const idx=events.findIndex(e=>e.id===ev.id);
+    const prev=idx>0?events[idx-1]:null;
+    if(!prev){body.innerHTML='<div class="empty-state">No previous event to diff against</div>';return;}
+    const a=prev.playerState||{},b=ev.playerState||{};
+    const keys=new Set([...Object.keys(a),...Object.keys(b)]);
+    let html=`<div class="diff-label">State diff: #${prev.id} ${esc(prev.name)} &#8594; #${ev.id} ${esc(ev.name)}</div><div class="json-tree">`;
+    let changed=false;
+    for(const k of keys){
+      const av=JSON.stringify(a[k]),bv=JSON.stringify(b[k]);
+      if(av===bv)continue;
+      changed=true;
+      html+=`<span class="diff-key">"${esc(k)}"</span>: <span class="diff-removed">${esc(av??'undefined')}</span> &#8594; <span class="diff-added">${esc(bv??'undefined')}</span>\n`;
+    }
+    if(!changed)html+='<span style="color:var(--tx3)">no state changes</span>';
+    html+='</div>';
+    body.innerHTML=html;
+  }
+}
+
+function jsonHtml(val,indent=0){
+  const pad='  '.repeat(indent);
+  if(val===null)return`<span class="json-null">null</span>`;
+  if(val===undefined)return`<span class="json-null">undefined</span>`;
+  if(typeof val==='boolean')return`<span class="json-bool">${val}</span>`;
+  if(typeof val==='number')return`<span class="json-num">${val}</span>`;
+  if(typeof val==='string')return`<span class="json-str">"${esc(val)}"</span>`;
+  if(Array.isArray(val)){
+    if(!val.length)return'[]';
+    return'[\n'+val.map(v=>pad+'  '+jsonHtml(v,indent+1)).join(',\n')+'\n'+pad+']';
+  }
+  if(typeof val==='object'){
+    const entries=Object.entries(val);
+    if(!entries.length)return'{}';
+    return'{\n'+entries.map(([k,v])=>pad+`  <span class="json-key">"${esc(k)}"</span>: `+jsonHtml(v,indent+1)).join(',\n')+'\n'+pad+'}';
+  }
+  return esc(String(val));
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+document.getElementById('btn-pause').addEventListener('click',()=>{
+  paused=!paused;
+  const btn=document.getElementById('btn-pause');
+  const pulse=document.getElementById('pulse');
+  const badge=document.getElementById('rec-badge');
+  btn.textContent=paused?'Resume':'Pause';
+  if(paused){pulse.classList.remove('recording');badge.textContent='&#9679; PAUSED';badge.style.background='#3a3000';badge.style.color='#e5b800';}
+  else{pulse.classList.add('recording');badge.textContent='&#9679; REC';badge.style.background='';badge.style.color='';}
+});
+
+document.getElementById('btn-clear').addEventListener('click',()=>{
+  events=[];seq=0;errorCount=0;selectedId=null;autoScroll=true;
+  updateErrBadge();renderList();renderDetail();
+});
+
+document.getElementById('btn-export').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(events,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='bitmovin-events-'+Date.now()+'.json';a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('filter-text').addEventListener('input',renderList);
+document.getElementById('filter-cat').addEventListener('change',renderList);
+
+document.getElementById('detail-tabs').addEventListener('click',e=>{
+  const tab=e.target.closest('.tab');
+  if(!tab)return;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  activeTab=tab.dataset.tab;
+  renderDetail();
+});
+
+document.getElementById('event-list-pane').addEventListener('scroll',e=>{
+  const el=e.target;
+  autoScroll=el.scrollTop+el.clientHeight>=el.scrollHeight-10;
+});
+
+function scheduleNext(){
+  setTimeout(()=>{
+    const name=WEIGHTED[Math.floor(Math.random()*WEIGHTED.length)];
+    if(name==='on_time_changed')simState.playing=true;
+    if(name==='on_stall_started')simState.stalling=true;
+    if(name==='on_stall_ended')simState.stalling=false;
+    addEvent(name);
+    scheduleNext();
+  },300+Math.random()*900);
+}
+
+setInterval(()=>{if(!paused){simState.position+=0.1;simState.buffer=Math.min(30,simState.buffer+0.08);}},100);
+
+addEvent('on_source_loaded');
+addEvent('on_ready');
+addEvent('on_play');
+scheduleNext();
+renderList();
+</script>
+</body>
+</html>
