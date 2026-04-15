@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Bitmovin DevTools</title>
+  <link rel="stylesheet" href="panel.css" />
+</head>
+<body>
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <span class="logo">▶ Bitmovin</span>
+    <span class="badge" id="rec-badge">● REC</span>
+    <span class="badge badge-error hidden" id="err-badge"></span>
+
+    <button id="btn-pause" class="btn">Pause</button>
+    <button id="btn-clear" class="btn btn-danger">Clear</button>
+
+    <div class="spacer"></div>
+
+    <label class="toolbar-label">filter</label>
+    <input type="text" id="filter-text" class="filter-input" placeholder="event name..." />
+
+    <label class="toolbar-label">category</label>
+    <select id="filter-cat" class="filter-select">
+      <option value="">all</option>
+      <option value="playback">playback</option>
+      <option value="buffer">buffer</option>
+      <option value="quality">quality</option>
+      <option value="ad">ad</option>
+      <option value="error">error</option>
+      <option value="drm">drm</option>
+      <option value="ui">ui</option>
+      <option value="metadata">metadata</option>
+    </select>
+
+    <button id="btn-export" class="btn">Export JSON</button>
+  </div>
+
+  <!-- No player notice -->
+  <div id="no-player-banner" class="banner hidden">
+    No Bitmovin player detected on this page. Navigate to a page using the Bitmovin Player SDK.
+  </div>
+
+  <!-- Main split layout -->
+  <div id="main">
+    <!-- Left: event list -->
+    <div id="event-list-pane">
+      <div id="event-list"></div>
+    </div>
+
+    <!-- Right: detail panel -->
+    <div id="detail-pane">
+      <div id="detail-tabs">
+        <button class="tab active" data-tab="payload">Payload</button>
+        <button class="tab" data-tab="state">Player state</button>
+        <button class="tab" data-tab="timeline">Timeline</button>
+        <button class="tab" data-tab="diff">Diff</button>
+      </div>
+      <div id="detail-body">
+        <div class="empty-state">← Select an event to inspect</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer status bar -->
+  <div id="footer">
+    <span class="pulse" id="pulse"></span>
+    <span id="footer-count">0 events</span>
+    <span class="sep">·</span>
+    <span id="footer-session">0s</span>
+    <div class="spacer"></div>
+    <span id="footer-player">no player</span>
+    <span class="sep">·</span>
+    <span id="footer-pos">pos —</span>
+    <span class="sep">·</span>
+    <span id="footer-buf">buf —</span>
+  </div>
+
+  <script src="panel.js"></script>
+</body>
+</html>

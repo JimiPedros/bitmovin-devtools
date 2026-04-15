@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Bitmovin Player DevTools",
+  "version": "1.0.0",
+  "description": "Inspect and debug Bitmovin Player events in real-time — Redux DevTools style.",
+  "permissions": [
+    "storage"
+  ],
+  "devtools_page": "devtools/devtools.html",
+  "background": {
+    "service_worker": "background/service_worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/injector.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["content/hook.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
