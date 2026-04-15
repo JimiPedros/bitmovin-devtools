@@ -132,17 +132,3 @@ v8/v9. For older versions that don't expose `window.bitmovin.player.Player`,
 you can patch `player.on` directly after detecting a player instance via
 a MutationObserver on the container element.
 
----
-
-## Icons
-
-The `icons/` folder needs three PNG files: `icon16.png`, `icon48.png`, `icon128.png`.  
-You can generate them from any SVG using:
-
-```bash
-npx sharp-cli -i icon.svg -o icons/icon16.png  resize 16
-npx sharp-cli -i icon.svg -o icons/icon48.png  resize 48
-npx sharp-cli -i icon.svg -o icons/icon128.png resize 128
-```
-
-Or replace with any 16×16 / 48×48 / 128×128 PNG images.
